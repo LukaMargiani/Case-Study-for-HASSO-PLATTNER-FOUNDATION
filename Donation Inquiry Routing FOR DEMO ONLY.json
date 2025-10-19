@@ -1,0 +1,357 @@
+{
+  "name": "Donation Inquiry Routing",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "customEmailConfig": "[\"UNSEEN\"]",
+          "trackLastMessageId": true
+        }
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        336
+      ],
+      "id": "f439e0a1-701a-4b86-942a-2b1220f91c40",
+      "name": "Email Trigger (IMAP)",
+      "credentials": {
+        "imap": {
+          "id": "4SkPUCb0mDZEks3J",
+          "name": "IMAP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.content.category }}",
+                    "rightValue": "New Application",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b78f36e7-f690-489a-8606-d734fd272844"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NewApps"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a8cde45d-be8e-4338-ae6e-0a624e06a4f3",
+                    "leftValue": "={{ $json.message.content.category }}",
+                    "rightValue": "New Application",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Others"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        544,
+        336
+      ],
+      "id": "8bf86d69-0b63-4551-9dbc-e5201aa34c0d",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an AI email triage assistant for a foundation’s recruiting and application management system.\n\nYour job:\n1. Read the following email (From, To, Subject, Body).\n2. Classify the email’s intent into exactly ONE of these categories:\n   - New Application\n   - Status Update\n   - General Question\n   - Irrelevant\n3. Extract the following entities from the email text, if they exist:\n   - Organization Name\n   - Contact Person\n   - Project Title\n4. Return your response STRICTLY as a single valid JSON object. Do not include any text, explanation, or markdown.\n\nJSON schema:\n{\n  \"category\": \"\",\n  \"organization_name\": \"\",\n  \"contact_person\": \"\",\n  \"project_title\": \"\",\n  \"email_from\": \"\",\n  \"email_to\": \"\",\n  \"email_subject\": \"\",\n  \"email_body\": \"\"\n}\n\nIf an entity is not mentioned, leave its value as an empty string (\"\").\n\nEmail details:\nFrom: {{$json[\"from\"]}}\nTo: {{$json[\"to\"]}}\nSubject: {{$json[\"subject\"]}}\nBody: {{$json[\"textPlain\"]}}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        336
+      ],
+      "id": "00c9c67d-0eb3-4019-bde7-b1b17531d28c",
+      "name": "AI Triage",
+      "retryOnFail": true,
+      "waitBetweenTries": 2500,
+      "credentials": {
+        "openAiApi": {
+          "id": "7j9GdHx7KOY8ZZP4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "lukamarg@gmail.com",
+        "toEmail": "={{ $json.message.content.email_from }}",
+        "subject": "Acknowledgment: Your application has been received",
+        "emailFormat": "text",
+        "text": "=Dear {{ $json.message.content.contact_person }},\n\nThank you for submitting your application for {{$json[\"project_title\"] || \"your project\"}} with {{$json[\"organization_name\"] || \"your organization\"}}. \nYou can track your application here: [link to official online application portal].\n\nBest regards,\nRecruiting Team",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        192
+      ],
+      "id": "4f9d73d7-d39a-49e9-9fb3-ae8359eb79d9",
+      "name": "Bot Reply",
+      "webhookId": "65c685ec-d9e8-4a04-89a4-e93f09378554",
+      "credentials": {
+        "smtp": {
+          "id": "O3CHzFLZRwXGffIp",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "email_triage_log",
+          "mode": "list",
+          "cachedResultName": "email_triage_log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_from": "={{ $json.message.content.email_from }}",
+            "email_to": "={{ $json.message.content.email_to }}",
+            "subject": "={{ $json.message.content.email_subject }}",
+            "body": "={{ $json.message.content.email_body }}",
+            "project_title": "={{ $json.message.content.project_title }}",
+            "contact_person": "={{ $json.message.content.contact_person }}",
+            "organization": "={{ $json.message.content.organization_name }}",
+            "category": "={{ $json.message.content.category }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "received_at",
+              "displayName": "received_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email_from",
+              "displayName": "email_from",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email_to",
+              "displayName": "email_to",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organization",
+              "displayName": "organization",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_person",
+              "displayName": "contact_person",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "project_title",
+              "displayName": "project_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        352
+      ],
+      "id": "7a65f045-10d3-401c-a483-619415eeefaf",
+      "name": "Log Data",
+      "credentials": {
+        "postgres": {
+          "id": "V8KuQmgGpRUOuZNb",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "AI Triage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Bot Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Triage": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4c9be6e-d2e5-423b-b319-a2625f9a9cee",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6bc83b9c10b875061472240540fb6cfd523e7f7642c8dc3453f41e76bd661eb2"
+  },
+  "id": "CI0LuBywmiJTthC9",
+  "tags": []
+}
