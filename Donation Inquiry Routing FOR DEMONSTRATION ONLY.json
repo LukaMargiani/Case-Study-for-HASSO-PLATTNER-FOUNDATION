@@ -11,7 +11,7 @@
       "type": "n8n-nodes-base.emailReadImap",
       "typeVersion": 2.1,
       "position": [
-        -16,
+        16,
         336
       ],
       "id": "f439e0a1-701a-4b86-942a-2b1220f91c40",
@@ -145,12 +145,15 @@
       "id": "4f9d73d7-d39a-49e9-9fb3-ae8359eb79d9",
       "name": "Bot Reply",
       "webhookId": "65c685ec-d9e8-4a04-89a4-e93f09378554",
+      "retryOnFail": true,
+      "waitBetweenTries": 2000,
       "credentials": {
         "smtp": {
           "id": "O3CHzFLZRwXGffIp",
           "name": "SMTP account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -296,11 +299,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "={{ $json.from }}",
+        "fromEmail": "={{ $json.message.content.from }}",
         "toEmail": "lukamarg@gmail.com",
-        "subject": "={{ $json.subject }}",
+        "subject": "={{ $json.message.content.subject }}",
         "emailFormat": "text",
-        "text": "={{ $json.body }}",
+        "text": "={{ $json.message.content.body }}",
         "options": {
           "appendAttribution": false
         }
@@ -308,10 +311,10 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        720,
+        544,
         32
       ],
-      "id": "a9cfc3e4-a45c-472e-be1e-7fea866e645c",
+      "id": "2d86196f-1237-4b97-af39-4186d0865a67",
       "name": "Send email",
       "webhookId": "d8c7f820-5d49-42a4-b5df-c185419d1362",
       "credentials": {
@@ -326,10 +329,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -16,
+        48,
         32
       ],
-      "id": "d771669d-092a-4193-b32f-57e4a8e841f8",
+      "id": "534c6544-2239-408d-bcd8-cce142658e99",
       "name": "Trigger"
     },
     {
@@ -343,29 +346,32 @@
         "messages": {
           "values": [
             {
-              "content": "You are a professional email generator for a project submission workflow. \nYour task is to generate ONE realistic, self-contained mock email in JSON format.\n\nEach time you are invoked, randomly select ONE of the following four categories:\n1. New Application\n2. Status Update\n3. General Question\n4. Irrelevant\n\n Important rules:\n- Do NOT mention or reveal the category anywhere in the email.\n- Always output ONLY valid JSON — no markdown, no explanations, no comments.\n- The output must include exactly these keys:\n  - \"from\": a realistic sender email (e.g., name@organization.com)\n  - \"subject\": a natural subject line appropriate to the chosen category\n  - \"body\": full plaintext email content, with natural paragraphing if needed\n\n---\n\n **Category behavior and content rules:**\n\n1. **New Application**\n   - Represents an organization submitting a new project.\n   - Must include: Organization Name, Project Title, and Contact Person.\n   - Example:\n     {\n       \"from\": \"natalie.green@ecoimpact.org\",\n       \"subject\": \"New Project Submission: Green Horizon Initiative\",\n       \"body\": \"Dear Committee,\\n\\nWe are submitting our new project titled 'Green Horizon Initiative' from 'EcoImpact Foundation'. The main contact person is Natalie Green.\\n\\nAttached are the proposal documents for your review.\\n\\nBest regards,\\nNatalie Green\"\n     }\n\n2. **Status Update**\n   - Someone following up on a previous submission.\n   - Must include: Organization Name, Project Title, and Contact Person.\n   - Example:\n     {\n       \"from\": \"brian.wright@envirocore.net\",\n       \"subject\": \"Status Check: Urban Reforestation Grant\",\n       \"body\": \"Hello,\\n\\nI am writing to follow up on the status of our recent submission titled 'Urban Reforestation Grant' from 'EnviroCore Foundation'. The contact person is Brian Wright.\\n\\nCould you please share an update on the review process?\\n\\nThank you,\\nBrian Wright\"\n     }\n\n3. **General Question**\n   - A casual or professional inquiry unrelated to a specific submission.\n   - Must include either Organization Name OR Contact Person (not both required).\n   - Example:\n     {\n       \"from\": \"lisa.morgan@cleantechlabs.com\",\n       \"subject\": \"Question about eligibility criteria\",\n       \"body\": \"Hi there,\\n\\nI represent 'CleanTech Labs' and had a question about your eligibility requirements. Are nonprofit research teams eligible to apply for funding?\\n\\nThanks,\\nLisa Morgan\"\n     }\n\n4. **Irrelevant**\n   - Spam, marketing, personal, or unrelated message.\n   - Should sound natural but completely unrelated to the project context.\n   - Example:\n     {\n       \"from\": \"newsletter@urbanstyle.com\",\n       \"subject\": \"Get 25% off your next order!\",\n       \"body\": \"Shop the latest styles in our new fall collection. Free shipping on orders over $50!\"\n     }\n\n---\n\n **Output instructions:**\n- Randomly select one category from the four above.\n- Generate ONE complete, natural-sounding email consistent with that category.\n- Output ONLY the JSON object in valid format — no additional commentary, explanations, or markdown.\n\nPlease add a small random variation to the email content. Current timestamp: {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n"
+              "content": "You are a professional email generator for a project submission workflow. Your task is to generate ONE realistic, self-contained mock email in valid JSON format.\n\nCategory Selection and Probabilities:\nEach time you are invoked, randomly select ONE of the following four categories using these probabilities:\n\nNew Application: 50% chance\n\nStatus Update: 20% chance\n\nGeneral Question: 20% chance\n\nIrrelevant: 10% chance\n\nImportant Rules:\n\nDo NOT mention or reveal the category anywhere in the email.\n\nAvoid explicit words like application, submission, status, update, question, inquiry, follow-up, or spam.\n\nThe email should sound natural, varied, and plausible so that the category cannot be identified immediately by keywords.\n\nOutput ONLY valid JSON — no markdown, explanations, or comments.\n\nEach JSON object must include exactly these keys:\n\n\"from\" — a realistic sender email (e.g., name@organization.com)\n\n\"subject\" — a natural subject line appropriate to the chosen category\n\n\"body\" — full plaintext email content, with natural paragraphing if needed\n\nCategory Behavior and Content Rules:\n\nNew Application (50%)\n\nRepresents an organization introducing a new project or initiative.\n\nMust include: Organization Name, Project Title, and Contact Person.\n\nTone should be formal and professional, but avoid direct cues like “project submission” or “application”.\n\nExample:\n{\n\"from\": \"natalie.green@ecoimpact.org"
             }
           ]
         },
         "jsonOutput": true,
         "options": {
-          "temperature": 0.7
+          "temperature": 0.9,
+          "topP": 0.9,
+          "topK": 40
         }
       },
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1,
       "position": [
-        160,
-        32
+        224,
+        -176
       ],
-      "id": "a238eb91-2243-4be1-b196-0d211bcc67b8",
+      "id": "03ffd809-e895-461a-907c-227a6f55ede1",
       "name": "Mock Email Gen",
       "credentials": {
         "googlePalmApi": {
           "id": "HQNIavkvmsXntOiU",
           "name": "Google Gemini(PaLM) Api account"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -374,11 +380,48 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        512,
+        528,
+        -176
+      ],
+      "id": "5a097164-8d01-4e36-8e78-d4f557cb0076",
+      "name": "Parse Gemini Output",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a professional email generator for a project submission workflow. Your task is to generate ONE realistic, self-contained mock email in valid JSON format.\n\nCategory Selection and Probabilities:\nEach time you are invoked, randomly select ONE of the following four categories using these probabilities:\n\nNew Application: 50% chance\n\nStatus Update: 20% chance\n\nGeneral Question: 20% chance\n\nIrrelevant: 10% chance\n\nImportant Rules:\n\nDo NOT mention or reveal the category anywhere in the email.\n\nAvoid explicit words like application, submission, status, update, question, inquiry, follow-up, or spam.\n\nThe email should sound natural, varied, and plausible so that the category cannot be identified immediately by keywords.\n\nOutput ONLY valid JSON — no markdown, explanations, or comments.\n\nEach JSON object must include exactly these keys:\n\n\"from\" — a realistic sender email (e.g., name@organization.com)\n\n\"subject\" — a natural subject line appropriate to the chosen category\n\n\"body\" — full plaintext email content, with natural paragraphing if needed\n\nCategory Behavior and Content Rules:\n\nNew Application (50%)\n\nRepresents an organization introducing a new project or initiative.\n\nMust include: Organization Name, Project Title, and Contact Person.\n\nTone should be formal and professional, but avoid direct cues like “project submission” or “application”.\n\nExample:\n{\n\"from\": \"natalie.green@ecoimpact.org"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0.7,
+          "topP": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        224,
         32
       ],
-      "id": "1ee293b8-1cc7-4a1e-85af-e2d83b419d44",
-      "name": "Parse Gemini Output"
+      "id": "2022098b-9aef-4501-827f-333f62c516d9",
+      "name": "Mock Mail Gen",
+      "credentials": {
+        "openAiApi": {
+          "id": "7j9GdHx7KOY8ZZP4",
+          "name": "OpenAi account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -432,7 +475,7 @@
       "main": [
         [
           {
-            "node": "Mock Email Gen",
+            "node": "Mock Mail Gen",
             "type": "main",
             "index": 0
           }
@@ -452,6 +495,11 @@
     },
     "Parse Gemini Output": {
       "main": [
+        []
+      ]
+    },
+    "Mock Mail Gen": {
+      "main": [
         [
           {
             "node": "Send email",
@@ -466,7 +514,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "bb34a578-009d-4eb6-9639-65ff9929dd4e",
+  "versionId": "2e8a3daa-3ab2-4a72-af43-d309327682a8",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6bc83b9c10b875061472240540fb6cfd523e7f7642c8dc3453f41e76bd661eb2"
