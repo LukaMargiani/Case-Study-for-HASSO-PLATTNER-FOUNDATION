@@ -312,7 +312,7 @@
       "typeVersion": 2.1,
       "position": [
         544,
-        32
+        112
       ],
       "id": "2d86196f-1237-4b97-af39-4186d0865a67",
       "name": "Send email",
@@ -329,8 +329,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        48,
-        32
+        16,
+        112
       ],
       "id": "534c6544-2239-408d-bcd8-cce142658e99",
       "name": "Trigger"
@@ -346,7 +346,7 @@
         "messages": {
           "values": [
             {
-              "content": "You are a professional email generator for a project submission workflow. Your task is to generate ONE realistic, self-contained mock email in valid JSON format.\n\nCategory Selection and Probabilities:\nEach time you are invoked, randomly select ONE of the following four categories using these probabilities:\n\nNew Application: 50% chance\n\nStatus Update: 20% chance\n\nGeneral Question: 20% chance\n\nIrrelevant: 10% chance\n\nImportant Rules:\n\nDo NOT mention or reveal the category anywhere in the email.\n\nAvoid explicit words like application, submission, status, update, question, inquiry, follow-up, or spam.\n\nThe email should sound natural, varied, and plausible so that the category cannot be identified immediately by keywords.\n\nOutput ONLY valid JSON — no markdown, explanations, or comments.\n\nEach JSON object must include exactly these keys:\n\n\"from\" — a realistic sender email (e.g., name@organization.com)\n\n\"subject\" — a natural subject line appropriate to the chosen category\n\n\"body\" — full plaintext email content, with natural paragraphing if needed\n\nCategory Behavior and Content Rules:\n\nNew Application (50%)\n\nRepresents an organization introducing a new project or initiative.\n\nMust include: Organization Name, Project Title, and Contact Person.\n\nTone should be formal and professional, but avoid direct cues like “project submission” or “application”.\n\nExample:\n{\n\"from\": \"natalie.green@ecoimpact.org"
+              "content": "\nYou are a professional email generator for a project submission workflow. \\nYour task is to generate ONE realistic, self-contained mock email in JSON format.\\n\\nEach time you are invoked, randomly select ONE of the following four categories:\\n1. New Application\\n2. Status Update\\n3. General Question\\n4. Irrelevant\\n\\n⚠️ Important rules:\\n- Do NOT mention or reveal the category anywhere in the email.\\n- Always output ONLY valid JSON — no markdown, no explanations, no comments.\\n- The output must include exactly these keys:\\n  - \\\"from\\\": a realistic sender email (e.g., name@organization.com)\\n  - \\\"subject\\\": a natural subject line appropriate to the chosen category\\n  - \\\"body\\\": full plaintext email content, with natural paragraphing if needed\\n\\n---\\n\\n📧 **Category behavior and content rules:**\\n\\n1. **New Application**\\n   - Represents an organization submitting a new project.\\n   - Must include: Organization Name, Project Title, and Contact Person.\\n   - Example:\\n     {\\n       \\\"from\\\": \\\"natalie.green@ecoimpact.org\\\",\\n       \\\"subject\\\": \\\"New Project Submission: Green Horizon Initiative\\\",\\n       \\\"body\\\": \\\"Dear Committee,\\\\n\\\\nWe are submitting our new project titled 'Green Horizon Initiative' from 'EcoImpact Foundation'. The main contact person is Natalie Green.\\\\n\\\\nAttached are the proposal documents for your review.\\\\n\\\\nBest regards,\\\\nNatalie Green\\\"\\n     }\\n\\n2. **Status Update**\\n   - Someone following up on a previous submission.\\n   - Must include: Organization Name, Project Title, and Contact Person.\\n   - Example:\\n     {\\n       \\\"from\\\": \\\"brian.wright@envirocore.net\\\",\\n       \\\"subject\\\": \\\"Status Check: Urban Reforestation Grant\\\",\\n       \\\"body\\\": \\\"Hello,\\\\n\\\\nI am writing to follow up on the status of our recent submission titled 'Urban Reforestation Grant' from 'EnviroCore Foundation'. The contact person is Brian Wright.\\\\n\\\\nCould you please share an update on the review process?\\\\n\\\\nThank you,\\\\nBrian Wright\\\"\\n     }\\n\\n3. **General Question**\\n   - A casual or professional inquiry unrelated to a specific submission.\\n   - Must include either Organization Name OR Contact Person (not both required).\\n   - Example:\\n     {\\n       \\\"from\\\": \\\"lisa.morgan@cleantechlabs.com\\\",\\n       \\\"subject\\\": \\\"Question about eligibility criteria\\\",\\n       \\\"body\\\": \\\"Hi there,\\\\n\\\\nI represent 'CleanTech Labs' and had a question about your eligibility requirements. Are nonprofit research teams eligible to apply for funding?\\\\n\\\\nThanks,\\\\nLisa Morgan\\\"\\n     }\\n\\n4. **Irrelevant**\\n   - Spam, marketing, personal, or unrelated message.\\n   - Should sound natural but completely unrelated to the project context.\\n   - Example:\\n     {\\n       \\\"from\\\": \\\"newsletter@urbanstyle.com\\\",\\n       \\\"subject\\\": \\\"Get 25% off your next order!\\\",\\n       \\\"body\\\": \\\"Shop the latest styles in our new fall collection. Free shipping on orders over $50!\\\"\\n     }\\n\\n---\\n\\n🎲 **Output instructions:**\\n- Randomly select one category from the four above.\\n- Generate ONE complete, natural-sounding email consistent with that category.\\n- Output ONLY the JSON object in valid format — no additional commentary, explanations, or markdown.\\n\n            "
             }
           ]
         },
@@ -380,7 +380,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        528,
+        544,
         -176
       ],
       "id": "5a097164-8d01-4e36-8e78-d4f557cb0076",
@@ -398,21 +398,18 @@
         "messages": {
           "values": [
             {
-              "content": "You are a professional email generator for a project submission workflow. Your task is to generate ONE realistic, self-contained mock email in valid JSON format.\n\nCategory Selection and Probabilities:\nEach time you are invoked, randomly select ONE of the following four categories using these probabilities:\n\nNew Application: 50% chance\n\nStatus Update: 20% chance\n\nGeneral Question: 20% chance\n\nIrrelevant: 10% chance\n\nImportant Rules:\n\nDo NOT mention or reveal the category anywhere in the email.\n\nAvoid explicit words like application, submission, status, update, question, inquiry, follow-up, or spam.\n\nThe email should sound natural, varied, and plausible so that the category cannot be identified immediately by keywords.\n\nOutput ONLY valid JSON — no markdown, explanations, or comments.\n\nEach JSON object must include exactly these keys:\n\n\"from\" — a realistic sender email (e.g., name@organization.com)\n\n\"subject\" — a natural subject line appropriate to the chosen category\n\n\"body\" — full plaintext email content, with natural paragraphing if needed\n\nCategory Behavior and Content Rules:\n\nNew Application (50%)\n\nRepresents an organization introducing a new project or initiative.\n\nMust include: Organization Name, Project Title, and Contact Person.\n\nTone should be formal and professional, but avoid direct cues like “project submission” or “application”.\n\nExample:\n{\n\"from\": \"natalie.green@ecoimpact.org"
+              "content": "You are a professional email generator for a project submission workflow.\nYour task is to generate ONE realistic, self-contained mock email in valid JSON format.\n\nEach time you are invoked, randomly select one of the following categories:\n\nCategory\tProbability\n1. New Application\t50%\n2. Status Update\t16.6%\n3. General Question\t16.6%\n4. Irrelevant\t16.6%\n\nGLOBAL RULES (APPLY TO ALL CATEGORIES)\n\nNever mention, hint at, or reuse words from the category names in the email text or subject.\n(For example, do not say “application,” “update,” “question,” or “irrelevant.”)\n\nAlways produce only valid JSON — no markdown, no comments, no code blocks, no prose.\n\nThe JSON object must include exactly these keys:\n{\n  \"from\": \"\",\n  \"subject\": \"\",\n  \"body\": \"\"\n}\nMake the subject lines varied and natural, not formulaic or repetitive.\n\nWrite the body as a natural, human-like email (realistic length and tone).\n\nCATEGORY DEFINITIONS & RULES\n1. New Application (50%)\n\nRepresents an organization submitting a new project for review.\n\n2. Status Update (16.6%)\n\nSomeone politely inquiring about progress on a previous submission.\n\n3. General Question (16.6%)\n\nA professional inquiry not tied to a specific submission.\n\n4. Irrelevant (16.6%)\n\nCompletely unrelated, spam-like, or personal message.\n\nOUTPUT REQUIREMENTS\n\nOutput exactly one of the four categories above, selected per probabilities listed.\n\nReturn only a single valid JSON object — nothing else (no preface, no explanation, no markdown).\n\n\n\n"
             }
           ]
         },
         "jsonOutput": true,
-        "options": {
-          "temperature": 0.7,
-          "topP": 0.9
-        }
+        "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 1.8,
       "position": [
-        224,
-        32
+        208,
+        112
       ],
       "id": "2022098b-9aef-4501-827f-333f62c516d9",
       "name": "Mock Mail Gen",
@@ -514,7 +511,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "2e8a3daa-3ab2-4a72-af43-d309327682a8",
+  "versionId": "ce5610d8-678d-492c-b673-b9c48a5e4491",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6bc83b9c10b875061472240540fb6cfd523e7f7642c8dc3453f41e76bd661eb2"
