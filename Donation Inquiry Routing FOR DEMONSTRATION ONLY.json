@@ -293,6 +293,92 @@
           "name": "Postgres account"
         }
       }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $json.from }}",
+        "toEmail": "lukamarg@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "text",
+        "text": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        720,
+        32
+      ],
+      "id": "a9cfc3e4-a45c-472e-be1e-7fea866e645c",
+      "name": "Send email",
+      "webhookId": "d8c7f820-5d49-42a4-b5df-c185419d1362",
+      "credentials": {
+        "smtp": {
+          "id": "O3CHzFLZRwXGffIp",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        32
+      ],
+      "id": "d771669d-092a-4193-b32f-57e4a8e841f8",
+      "name": "Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-pro",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-pro"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a professional email generator for a project submission workflow. \nYour task is to generate ONE realistic, self-contained mock email in JSON format.\n\nEach time you are invoked, randomly select ONE of the following four categories:\n1. New Application\n2. Status Update\n3. General Question\n4. Irrelevant\n\n Important rules:\n- Do NOT mention or reveal the category anywhere in the email.\n- Always output ONLY valid JSON — no markdown, no explanations, no comments.\n- The output must include exactly these keys:\n  - \"from\": a realistic sender email (e.g., name@organization.com)\n  - \"subject\": a natural subject line appropriate to the chosen category\n  - \"body\": full plaintext email content, with natural paragraphing if needed\n\n---\n\n **Category behavior and content rules:**\n\n1. **New Application**\n   - Represents an organization submitting a new project.\n   - Must include: Organization Name, Project Title, and Contact Person.\n   - Example:\n     {\n       \"from\": \"natalie.green@ecoimpact.org\",\n       \"subject\": \"New Project Submission: Green Horizon Initiative\",\n       \"body\": \"Dear Committee,\\n\\nWe are submitting our new project titled 'Green Horizon Initiative' from 'EcoImpact Foundation'. The main contact person is Natalie Green.\\n\\nAttached are the proposal documents for your review.\\n\\nBest regards,\\nNatalie Green\"\n     }\n\n2. **Status Update**\n   - Someone following up on a previous submission.\n   - Must include: Organization Name, Project Title, and Contact Person.\n   - Example:\n     {\n       \"from\": \"brian.wright@envirocore.net\",\n       \"subject\": \"Status Check: Urban Reforestation Grant\",\n       \"body\": \"Hello,\\n\\nI am writing to follow up on the status of our recent submission titled 'Urban Reforestation Grant' from 'EnviroCore Foundation'. The contact person is Brian Wright.\\n\\nCould you please share an update on the review process?\\n\\nThank you,\\nBrian Wright\"\n     }\n\n3. **General Question**\n   - A casual or professional inquiry unrelated to a specific submission.\n   - Must include either Organization Name OR Contact Person (not both required).\n   - Example:\n     {\n       \"from\": \"lisa.morgan@cleantechlabs.com\",\n       \"subject\": \"Question about eligibility criteria\",\n       \"body\": \"Hi there,\\n\\nI represent 'CleanTech Labs' and had a question about your eligibility requirements. Are nonprofit research teams eligible to apply for funding?\\n\\nThanks,\\nLisa Morgan\"\n     }\n\n4. **Irrelevant**\n   - Spam, marketing, personal, or unrelated message.\n   - Should sound natural but completely unrelated to the project context.\n   - Example:\n     {\n       \"from\": \"newsletter@urbanstyle.com\",\n       \"subject\": \"Get 25% off your next order!\",\n       \"body\": \"Shop the latest styles in our new fall collection. Free shipping on orders over $50!\"\n     }\n\n---\n\n **Output instructions:**\n- Randomly select one category from the four above.\n- Generate ONE complete, natural-sounding email consistent with that category.\n- Output ONLY the JSON object in valid format — no additional commentary, explanations, or markdown.\n\nPlease add a small random variation to the email content. Current timestamp: {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        160,
+        32
+      ],
+      "id": "a238eb91-2243-4be1-b196-0d211bcc67b8",
+      "name": "Mock Email Gen",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "HQNIavkvmsXntOiU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Function node: Parse LLM output\nreturn [\n  {\n    json: JSON.parse($json[\"content\"][\"parts\"][0][\"text\"])\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        32
+      ],
+      "id": "1ee293b8-1cc7-4a1e-85af-e2d83b419d44",
+      "name": "Parse Gemini Output"
     }
   ],
   "pinData": {},
@@ -341,13 +427,46 @@
           }
         ]
       ]
+    },
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "Mock Email Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mock Email Gen": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini Output": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "aa02d321-f56a-4616-b9c6-e02749913c9c",
+  "versionId": "bb34a578-009d-4eb6-9639-65ff9929dd4e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "6bc83b9c10b875061472240540fb6cfd523e7f7642c8dc3453f41e76bd661eb2"
