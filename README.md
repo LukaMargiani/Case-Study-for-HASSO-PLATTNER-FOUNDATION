@@ -129,30 +129,40 @@ CREATE TABLE public.email_triage_log (
 );
 ```
 
-## 5. Run the Workflow
-Activate the workflow in n8n.
-Send a test email to the monitored inbox.
-Observe the following behavior:
-Email is fetched via IMAP.
-AI Triage classifies and extracts key fields.
-Switch routes based on category.
-New Application → triggers acknowledgment email.
-All cases → log entry created in PostgreSQL.
+### 5. Run the Workflow
 
-## Assumptions
-Email Input: Plaintext messages; HTML parsing not required.
-AI Output: Always valid JSON adhering to the provided schema.
-LLM Temperature: Set to 0 for deterministic classification.
-Infrastructure: n8n instance has network access to IMAP, SMTP, and PostgreSQL endpoints.
-Table Exists: email_triage_log table is pre-created.
-Acknowledgment Text: Can be freely modified within the Bot Reply node.
+1. **Activate the workflow** in n8n.  
+2. **Send a test email** to the monitored inbox.  
+3. **Observe the automation steps:**
+   - The email is fetched via IMAP.  
+   - AI Triage classifies and extracts key fields.  
+   - Switch routes the email based on its category.  
+   - **New Application** → triggers an acknowledgment email via the Bot Reply node.  
+   - **All categories** → create a log entry in PostgreSQL for tracking and analytics.
 
-## Contact & References
-Author: Luka Margiani
-Email: lukamarg@gmail.com
 
-### References
-[official n8n documentation](https://docs.n8n.io/)
-[OpenAI API Reference](https://platform.openai.com/docs/api-reference)
-[PostgreSQL Documentation](https://www.postgresql.org/docs/)
-[IMAP & SMTP Setup Guide](https://docs.n8n.io/integrations/builtin/email/)
+##  Assumptions
+
+- **Email Format:** Plaintext messages; HTML parsing not required.  
+- **AI Output:** Always returned as valid JSON matching the defined schema.  
+- **LLM Behavior:** Temperature set to `0` for deterministic and reproducible results.  
+- **Connectivity:** n8n instance has network access to IMAP, SMTP, and PostgreSQL servers.  
+- **Database:** `email_triage_log` table must exist prior to workflow activation.  
+- **Acknowledgment Email:** Template text can be edited directly inside the Bot Reply node.
+
+
+##  Contact & References
+
+**Author:** Luka Margiani  
+**Email:** [lukamarg@gmail.com](mailto:lukamarg@gmail.com)  
+
+---
+
+###  References
+
+- Check out the [official n8n documentation](https://docs.n8n.io/) for more details.  
+- Check out the [OpenAI API Reference](https://platform.openai.com/docs/api-reference) for more details.  
+- Check out the [PostgreSQL Documentation](https://www.postgresql.org/docs/) for more details.  
+- Check out the [IMAP & SMTP Setup Guide](https://docs.n8n.io/integrations/builtin/email/) for more details.  
+
+
